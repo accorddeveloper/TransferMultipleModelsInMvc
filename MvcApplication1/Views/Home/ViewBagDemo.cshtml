@@ -1,0 +1,97 @@
+﻿@using MvcApplication1.Models
+@using System.Web.Helpers;
+@{
+    
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ViewBagDemo</title>
+    <script src="~/Scripts/jquery-1.8.2.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //隐藏
+            $('#students').hide();
+            $('#teachers').hide();
+
+            //点击课程下拉框           
+            $('#sel').change(function() {
+                selectedCourseName = $('#sel').val().trim();
+                if (selectedCourseName == "--选择课程--") {
+                    $('#students').hide();
+                    $('#teachers').hide();
+                } else {
+                    getTeacherTable();
+                    getStudentTable();
+                    $('#students').show();
+                    $('#teachers').show();
+                }
+            });
+        });
+
+        var selectedCourseName;
+
+        //创建老师课程表
+        function getTeacherTable() {
+            $('#teachersTable').empty();
+            $('#teachersTable').append("<table id='tblTeachers'><tr><th>编号</th><th>姓名</th></tr></table>");
+            //把所有老师转换成json格式
+            var teachers = @Html.Raw(Json.Encode(ViewBag.Teachers));
+
+            for (var i = 0; i < teachers.length; i++) {
+                var courses = teachers[i].Courses;
+                for (var j = 0; j < courses.length; j++) {
+                    if (courses[j].Name == selectedCourseName) {
+                        $('#tblTeachers').append("<tr><td>"+courses[i].Id+"</td><td>"+courses[i].Name+"</td></tr>");
+                    }
+                }
+            }
+        }
+
+        //创建学生上课表
+        function getStudentTable() {
+            $('#studentsTable').empty();
+            $('#studentsTable').append("<table id='tblStudents'><tr><th>编号</th><th>姓名</th></tr></table>");
+            var students = @Html.Raw(Json.Encode(ViewBag.Students));
+            for (var i = 0; i < students.length; i++) {
+                var courses = students[i].Courses;
+                for (var j = 0; j < courses.length; j++) {
+                    if (courses[j].Name == selectedCourseName) {
+                        $('#tblStudents').append("<tr><td>"+courses[j].Id+"</td><td>"+courses[j].Name+"</td></tr>");
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <td><h3>选择课程</h3></td>
+                <td>
+                    <select id="sel">
+                        <option>--选择课程--</option>
+                        @foreach (var course in ViewBag.Courses)
+                        {
+                            <option>@course.Name</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="teachers">
+        <h4>老师课程表</h4>
+        <div id="teachersTable"></div>
+    </div>
+    <div id="students">
+        <h4>学生上课表</h4>
+        <div id="studentsTable"></div>
+    </div>
+</body>
+</html>
